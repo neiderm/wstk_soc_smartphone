@@ -42,6 +42,7 @@
 #include "beacon.h"
 #include "app_timer.h"
 #include "board_features.h"
+#include "batt.h"
 
 /* Own header */
 #include "app.h"
@@ -59,10 +60,16 @@
 /***************************************************************************************************
  * Local Macros and Definitions
  **************************************************************************************************/
-
+#define STRLENGHT (40U)
 /***************************************************************************************************
  * Local Variables
  **************************************************************************************************/
+static uint8_t activeConnectionId = 0xFF; 	/* Connection Handle ID */
+static char passString[STRLENGHT];
+
+//static uint8_t bonded = 0;
+static uint8_t ledState = 0;
+static uint8_t heart_rate_measurement = 0xff;
 
 /***************************************************************************************************
  * Static Function Declarations
@@ -77,6 +84,15 @@ static void (*dispPolarityInvert)(void *);
 /***************************************************************************************************
  * Function Definitions
  **************************************************************************************************/
+
+/***********************************************************************************************//**
+ * \brief Function 
+ **************************************************************************************************/
+uint8_t conGetConnectionId(void)
+{
+  /* Return connection handle ID */
+  return activeConnectionId;
+}
 
 /***********************************************************************************************//**
  * \brief Function that initializes the device name, LEDs, buttons and services.
@@ -122,8 +138,24 @@ void appHandleEvents(struct gecko_cmd_packet *evt)
   switch (BGLIB_MSG_ID(evt->header)) {
     /* Boot event and connection closed event */
     case gecko_evt_system_boot_id:
+      if (gecko_evt_system_boot_id == BGLIB_MSG_ID(evt->header)) { // GN:
+                printLog("\r\nBoot! ........ \r\n");
+      }
+//fall-thru ...
     case gecko_evt_le_connection_closed_id:
 
+      if (gecko_evt_le_connection_closed_id == BGLIB_MSG_ID(evt->header)) { // GN:
+        printLog("connection closed, reason: 0x%2.2x\r\n", evt->data.evt_le_connection_closed.reason);
+
+        /* Store the connection ID */
+        activeConnectionId = 0xFF; /* delete the connection ID */
+      }
+      /* Restart advertising after client has disconnected ?????  */
+///*
+// *  GN: what about ...
+            gecko_cmd_sm_configure(0x00, sm_io_capability_displayyesno);
+            gecko_cmd_sm_set_bondable_mode(1);
+ //*/
       /* Initialize app */
       appInit(); /* App initialization */
       htmInit(); /* Health thermometer initialization */
@@ -138,28 +170,92 @@ void appHandleEvents(struct gecko_cmd_packet *evt)
 
     /* Connection opened event */
     case gecko_evt_le_connection_opened_id:
+
+      printLog("connection opened\r\n"); flushLog();
+
+      /* Store the connection ID */
+      activeConnectionId = evt->data.evt_le_connection_opened.connection;
+
       /* Call advertisement.c connection started callback */
       advConnectionStarted();
       break;
 
     /* Value of attribute changed from the local database by remote GATT client */
     case gecko_evt_gatt_server_attribute_value_id:
-      /* Check if changed characteristic is the Immediate Alert level */
-      if ( gattdb_alert_level == evt->data.evt_gatt_server_attribute_value.attribute) {
-        /* Write the Immediate Alert level value */
-        iaImmediateAlertWrite(&evt->data.evt_gatt_server_attribute_value.value);
+
+      printLog("_evt_gatt_server_attribute_value_id (attribute_value.attribute == %d) \r\n", evt->data.evt_gatt_server_attribute_value.attribute); flushLog();
+
+      switch (evt->data.evt_gatt_server_attribute_value.attribute){
+
+        /* Check if changed characteristic is the Immediate Alert level */
+        case gattdb_alert_level:
+          /* Write the Immediate Alert level value */
+          iaImmediateAlertWrite(&evt->data.evt_gatt_server_attribute_value.value);
+          break;
+
+        default:
+          printLog("unhandled: _evt_gatt_server_attribute_value_id (%d == %d) \r\n",
+            evt->data.evt_gatt_server_attribute_value.attribute, evt->data.evt_gatt_server_attribute_value.value.data[0]); flushLog();
+          break;
       }
       break;
 
     /* Indicates the changed value of CCC or received characteristic confirmation */
     case gecko_evt_gatt_server_characteristic_status_id:
-      /* Check if changed client char config is for the temperature measurement */
-      if ((gattdb_temperature_measurement == evt->data.evt_gatt_server_attribute_value.attribute)
-          && (evt->data.evt_gatt_server_characteristic_status.status_flags == 0x01)) {
-        /* Call HTM temperature characteristic status changed callback */
-        htmTemperatureCharStatusChange(
-          evt->data.evt_gatt_server_characteristic_status.connection,
-          evt->data.evt_gatt_server_characteristic_status.client_config_flags);
+      switch (evt->data.evt_gatt_server_attribute_value.attribute) 
+      {
+        case gattdb_temperature_measurement:
+          /* Check if changed client char config is for the temperature measurement */
+          if (evt->data.evt_gatt_server_characteristic_status.status_flags == 0x01) {
+            /* Call HTM temperature characteristic status changed callback */
+            htmTemperatureCharStatusChange(
+              evt->data.evt_gatt_server_characteristic_status.connection,
+              evt->data.evt_gatt_server_characteristic_status.client_config_flags);
+          }
+          break;
+
+        case gattdb_battery_level:
+// char-write-cmd 0x3b 0100 ... enable notification   t_server_characteristic_status.client_config_flags == 1
+          printLog("gattdb_battery_level: evt->data.evt_gatt_server_characteristic_status.client_config_flags (%d) \r\n", evt->data.evt_gatt_server_characteristic_status.client_config_flags); flushLog();
+
+          battCharStatusChange(evt->data.evt_gatt_server_characteristic_status.connection,
+              evt->data.evt_gatt_server_characteristic_status.client_config_flags);
+          break;
+
+//        case gattdb_characteristic_presentation_format: // GN: nfi
+
+        case gattdb_service_changed_char:
+          printLog("gattdb_service_changed_char ?????????????? (pairing??? )  \r\n");flushLog();
+          break;
+
+        case gattdb_device_name:
+          printLog("_evt_gatt_server_characteristic_status_id -> gattdb_device_name \r\n");flushLog();
+          break;
+
+        default:
+          printLog("unhandled  _gatt_server_attribute_value.attribute ) ... evt->data.evt_gatt_server_attribute_value.attribute %d \r\n", evt->data.evt_gatt_server_attribute_value.attribute);
+//            printLog("evt->data.evt_gatt_server_characteristic_status.characteristic (%d) \r\n", evt->data.evt_gatt_server_characteristic_status.characteristic);
+//            printLog("evt->data.evt_gatt_server_characteristic_status.client_config_flags (%d) \r\n", evt->data.evt_gatt_server_characteristic_status.client_config_flags);
+//            printLog("evt->data.evt_gatt_server_characteristic_status.status_flags (%d) \r\n", evt->data.evt_gatt_server_characteristic_status.status_flags);
+          flushLog();
+          break;
+      }
+
+      break;
+
+    case gecko_evt_gatt_server_user_read_request_id:
+
+      printLog("gecko_evt_gatt_server_user_read_request_id, ...: (%d) \r\n", evt->data.evt_gatt_server_user_read_request.characteristic); flushLog();
+
+      switch (evt->data.evt_gatt_server_user_read_request.characteristic){
+
+        case gattdb_battery_level:
+          battRead();
+          break;
+
+        default:
+          printLog("gecko_evt_gatt_server_user_read_request_id, ...: (%d) \r\n", evt->data.evt_gatt_server_user_read_request.characteristic); flushLog();
+          break;
       }
       break;
 
@@ -205,11 +301,40 @@ void appHandleEvents(struct gecko_cmd_packet *evt)
         /* Close connection to enter to DFU OTA mode */
         gecko_cmd_le_connection_close(evt->data.evt_gatt_server_user_write_request.connection);
       }
+
+      switch(evt->data.evt_gatt_server_user_write_request.characteristic){
+      case  gattdb_battery_level:
+
+//        battSet(evt->data.evt_gatt_server_attribute_value.value.data[0]); // gecko_cmd_gatt_server_send_characteristic_notification()
+
+        // GN: gecko_cmd_gatt_server_send_user_write_response()  ?????
+
+        printLog("_evt_gatt_server_user_write_request_id: characteristic '%d' = (%d) \r\n",
+        		evt->data.evt_gatt_server_user_write_request.characteristic,
+				evt->data.evt_gatt_server_attribute_value.value.data[0]); flushLog();
+        break;
+      default:
+        printLog("Unhandled evt->data.evt_gatt_server_user_write_request.characteristic [_evt_gatt_server_user_write_request_id]: characteristic '%d' = (%d) \r\n",
+    	  evt->data.evt_gatt_server_user_write_request.characteristic, evt->data.evt_gatt_server_attribute_value.value.data[0]); flushLog();
+        break;
+      }
+
+      break; // _user_write_request_id
+
+    case gecko_evt_le_connection_parameters_id:
+        printLog("(gecko_evt_le_connection_parameters_id) Event =='%08x' \r\n", BGLIB_MSG_ID(evt->header)); flushLog();
+      break;
+    case gecko_evt_le_connection_phy_status_id:
+        printLog("(gecko_evt_le_connection_phy_status_id) Event =='%08x' \r\n", BGLIB_MSG_ID(evt->header)); flushLog();
+      break;
+    case gecko_evt_gatt_mtu_exchanged_id:
+        printLog("(gecko_evt_gatt_mtu_exchanged_id) Event =='%08x' \r\n", BGLIB_MSG_ID(evt->header)); flushLog();
       break;
 
     default:
+        printLog("UNHANDLED Event =='%08x' \r\n", BGLIB_MSG_ID(evt->header)); flushLog();
       break;
-  }
+  }   // end big switch
 }
 
 /**************************************************************************//**

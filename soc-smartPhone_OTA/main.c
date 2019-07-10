@@ -106,6 +106,9 @@ int main(void)
   GPIO_PinModeSet(BSP_BUTTON1_PORT, BSP_BUTTON1_PIN, gpioModeInput, 1);
 #endif
 
+  /* Initialize debug prints. Note: debug prints are off by default. See DEBUG_LEVEL in app.h */
+     initLog(); // GN: added debug prints to soc_smartphone
+
   // Initialize stack
   gecko_init(&config);
 

@@ -3,7 +3,4 @@
 //
 
 Executing: bgbuild (/home/bones/SimplicityStudio_v4/developer/sdks/gecko_sdk_suite/v2.5/protocol/bluetooth/bin/bgbuild)
-Standard output
-ALL OK
-
 

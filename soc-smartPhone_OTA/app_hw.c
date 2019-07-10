@@ -17,6 +17,7 @@
 
 /* BG stack headers */
 #include "bg_types.h"
+#include "native_gecko.h" // GN: undefined reference to `gecko_cmd_sm_passkey_confirm'
 
 /* STK header files. */
 #if defined(HAL_CONFIG)
@@ -42,6 +43,8 @@
 
 /* Own headers*/
 #include "app_hw.h"
+
+#include "app.h"//GN: printlog
 
 /***********************************************************************************************//**
  * @addtogroup Application
@@ -113,6 +116,25 @@ static void appBtnCback(AppUiBtnEvt_t btn)
 {
   if (APP_UI_BTN_0_SHORT == btn) {
     advSwitchAdvMessage();
+  }
+
+  if (APP_UI_BTN_0_LONG == btn)
+  {
+    /* Send the HID key presses */
+//    hidSendKeyboardText();
+  }
+
+  if (APP_UI_BTN_1_SHORT == btn)
+  {
+  printLog("PB1 pressed (SHORT)\r\n");flushLog();
+    /* Confirm passkey */
+    gecko_cmd_sm_passkey_confirm(conGetConnectionId(), 1);
+  }
+
+  if (APP_UI_BTN_1_LONG == btn)
+  {
+    /* Send the HID key presses */
+    battSet(55);
   }
 }
 

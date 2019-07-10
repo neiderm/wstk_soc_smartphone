@@ -23,7 +23,7 @@
 #include "hal-config-app-common.h"
 
 #ifndef HAL_VCOM_ENABLE
-#define HAL_VCOM_ENABLE                   (0)
+#define HAL_VCOM_ENABLE                   (1)
 #endif
 
 #ifndef HAL_SPIDISPLAY_ENABLE
