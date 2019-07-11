@@ -36,6 +36,8 @@
 							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.7667906" name="GNU ARM C Compiler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.misc.dialect.324560007" name="C Language Dialect" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.misc.dialect" value="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.misc.dialect.c99" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1130720038" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/home/bones/SimplicityStudio_v4/developer/sdks/gecko_sdk_suite/v2.5/platform/bootloader/api"/>
+									<listOptionValue builtIn="false" value="/home/bones/SimplicityStudio_v4/developer/sdks/gecko_sdk_suite/v2.5/platform/bootloader/"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/hardware/kit/common/bsp}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/hardware/kit/common/drivers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/platform/CMSIS/Include}&quot;"/>
@@ -113,6 +115,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/platform/Device/SiliconLabs/BGM13/Source/GCC}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/platform/bootloader}&quot;"/>
+									<listOptionValue builtIn="false" value="/home/bones/SimplicityStudio_v4/developer/sdks/gecko_sdk_suite/v2.5/platform/bootloader/api"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.as.def.symbols.2032352026" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.as.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="HAL_CONFIG=1"/>
@@ -161,7 +164,7 @@
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
 	</storageModule>
-	<storageModule generalProj.esf.protocolIds="com.silabs.sdk.stack.super:2.5.5._-1623432179.com.silabs.stack.ble:2.11.5.0_-2038874963" generalProj.esf.protocolNames="ble" moduleId="com.silabs.ss.framework.ide.project.core.cpp" project.generation="4" projectCommon.boardIds="brd4305c:0.0.0.A02" projectCommon.partId="mcu.arm.efr32.bg13.bgm13s22f512ga" projectCommon.sdkId="com.silabs.sdk.stack.super:2.5.5._-1623432179"/>
+	<storageModule generalProj.esf.protocolIds="com.silabs.sdk.stack.super:2.5.5._-1623432179.com.silabs.stack.ble:2.11.5.0_-2038874963" generalProj.esf.protocolNames="ble" moduleId="com.silabs.ss.framework.ide.project.core.cpp" project.generation="14" projectCommon.boardIds="brd4305c:0.0.0.A02" projectCommon.partId="mcu.arm.efr32.bg13.bgm13s22f512ga" projectCommon.sdkId="com.silabs.sdk.stack.super:2.5.5._-1623432179"/>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="soc-smartPhone_OTA.com.silabs.ss.framework.ide.project.core.cdt.cdtMbsProjectType.1816011081" name="SLS CDT Project" projectType="com.silabs.ss.framework.ide.project.core.cdt.cdtMbsProjectType"/>
 	</storageModule>

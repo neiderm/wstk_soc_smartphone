@@ -190,7 +190,7 @@ void appUiInit(uint16_t devId)
   gecko_cmd_hardware_set_soft_timer(TIMER_MS_2_TIMERTICK(APP_UITIMER_PERIOD - APP_RC_DISCHARGE_PERIOD), UI_TIMER, false);
 #else /* !BRD4300A */
   /* Initialise LEDs */
-
+printf("appUIInit\r\n");
   /* Initialize buttons */
   /* Start repeating (auto-load) timer */
   gecko_cmd_hardware_set_soft_timer(TIMER_MS_2_TIMERTICK(APP_UITIMER_PERIOD), UI_TIMER, false);

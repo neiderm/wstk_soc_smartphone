@@ -21,7 +21,11 @@ extern const struct bg_gattdb_def bg_gattdb_data;
 #define gattdb_MeasInt                         27
 #define gattdb_alert_level                     30
 #define gattdb_ota_control                     33
-#define gattdb_battery_level                   36
-#define gattdb_characteristic_presentation_format         37
+#define gattdb_ota_data                        35
+#define gattdb_battery_level                   38
+#define gattdb_characteristic_presentation_format         39
+#define gattdb_heart_rate_measurement          43
+#define gattdb_body_sensor_location            46
+#define gattdb_heart_rate_control_point         48
 
 #endif

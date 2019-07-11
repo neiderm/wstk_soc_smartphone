@@ -48,6 +48,9 @@ typedef enum {
   /** Application UI timer.
    *  This is an auto-reload timer used for timing LED and Button events. */
   UI_TIMER = 0,
+  /** OTA timer.
+   *  This is a timer for logging performance statistics during OTA file upload . */
+  OTA_TIMER,
   /** Advertisement timer.
    *  This is a single-shot timer used to wait some time with advertisement stopped until changes
    *  are registered in stack and we can advertise again with a different user defined advertising
